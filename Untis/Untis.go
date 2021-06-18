@@ -12,6 +12,7 @@ type User struct {
 	username string
 	password string
 	school   string
+	server   string
 
 	sessionId  string
 	personType float64
@@ -19,9 +20,9 @@ type User struct {
 	klasseId   float64
 }
 
-var timetables [][]interface{}
+var timetables [][]Period
 
-func NewUser(username string, password string, school string) *User {
+func NewUser(username string, password string, school string, server string) *User {
 
 	schoolParts := splitAny(school, " +_")
 	school = ""
@@ -36,21 +37,13 @@ func NewUser(username string, password string, school string) *User {
 		username: username,
 		password: password,
 		school:   school,
+		server:   server,
 	}
 }
 
-func request(mehtode string, jsonParam map[string]interface{}, seesionId string, urlParam ...string) interface{} {
-	url := "https://tipo.webuntis.com/WebUntis/jsonrpc.do"
+func (u *User) request(mehtode string, jsonParam map[string]interface{}) interface{} {
 
-	if len(urlParam) > 0 {
-		url += "?"
-	}
-	for i, para := range urlParam {
-		if i > 0 {
-			url += "&"
-		}
-		url += para
-	}
+	url := u.server + "/WebUntis/jsonrpc.do" + "?school=" + u.school
 
 	postBody, _ := json.Marshal(map[string]interface{}{
 		"id":      "0",
@@ -64,8 +57,8 @@ func request(mehtode string, jsonParam map[string]interface{}, seesionId string,
 	req, err := http.NewRequest("POST", url, responseBody)
 	checkError(err)
 
-	if seesionId != "" {
-		req.AddCookie(&http.Cookie{Name: "JSESSIONID", Value: seesionId})
+	if u.sessionId != "" {
+		req.AddCookie(&http.Cookie{Name: "JSESSIONID", Value: u.sessionId})
 	}
 
 	res, err := client.Do(req)
@@ -78,7 +71,16 @@ func request(mehtode string, jsonParam map[string]interface{}, seesionId string,
 	err = json.Unmarshal(body, &response)
 	checkError(err)
 
-	return response
+	result := response.(map[string]interface{})
+	for key, value := range result {
+		if key == "error" {
+			log.Print(value)
+			return map[string]interface{}{}
+		}
+	}
+	log.Println()
+
+	return result["result"]
 }
 
 func (u *User) Login() {
@@ -88,41 +90,113 @@ func (u *User) Login() {
 		"client":   "UntisQuerry",
 	}
 
-	response := request("authenticate", postBody, "", "school="+u.school).(map[string]interface{})
-
-	result := response["result"].(map[string]interface{})
+	result := u.request("authenticate", postBody).(map[string]interface{})
 	u.personId = result["personId"].(float64)
 	u.klasseId = result["klasseId"].(float64)
 	u.personType = result["personType"].(float64)
 	u.sessionId = result["sessionId"].(string)
 }
+func (u *User) Logout() {
+	postBody := map[string]interface{}{}
+
+	u.request("logout", postBody)
+}
+
+func (u *User) GetTeachers() []Teacher {
+	postBody := map[string]interface{}{}
+
+	result := u.request("getTeachers", postBody)
+	var teachers []Teacher
+	for _, t := range result.([]interface{}) {
+		teacher := parseTeacher(t.(map[string]interface{}))
+		teachers = append(teachers, teacher)
+	}
+	return teachers
+}
+func (u *User) GetStudents() []Student {
+	postBody := map[string]interface{}{}
+
+	result := u.request("getStudents", postBody)
+	var students []Student
+	for _, t := range result.([]interface{}) {
+		student := parseStudent(t.(map[string]interface{}))
+		students = append(students, student)
+	}
+	return students
+}
+func (u *User) GetClasses() []Class {
+	postBody := map[string]interface{}{}
+
+	result := u.request("getKlassen", postBody)
+	var classes []Class
+	for _, t := range result.([]interface{}) {
+		student := parseClass(t.(map[string]interface{}))
+		classes = append(classes, student)
+	}
+	return classes
+}
+func (u *User) GetRooms() []Room {
+	postBody := map[string]interface{}{}
+
+	result := u.request("getRooms", postBody)
+	var rooms []Room
+	for _, t := range result.([]interface{}) {
+		room := parseRoom(t.(map[string]interface{}))
+		rooms = append(rooms, room)
+	}
+	return rooms
+}
+func (u *User) GetSubjects() []Subject {
+	postBody := map[string]interface{}{}
+
+	result := u.request("getSubjects", postBody)
+	var subjects []Subject
+	for _, t := range result.([]interface{}) {
+		subject := parseSubject(t.(map[string]interface{}))
+		subjects = append(subjects, subject)
+	}
+	return subjects
+}
+
+func (u *User) GetTimetable(id int, idtype int /*, startDate int , endDate int */) (periods []Period) {
+	postBody := map[string]interface{}{
+		"options": map[string]interface{}{
+			"element": map[string]interface{}{"id": id, "type": idtype, "keyType": "id"},
+
+			"showStudentgroup": true,
+			"showLsText":       true,
+			"showLsNumber":     true,
+			"showInfo":         true,
+			"showBooking":      true,
+			"showSubstText":    true,
+
+			// "startDate": startDate,
+			// "endDate": endDate,
+
+			"klasseFields":  []interface{}{"id", "name", "longname", "externalkey"},
+			"roomFields":    []interface{}{"id", "name", "longname", "externalkey"},
+			"subjectFields": []interface{}{"id", "name", "longname", "externalkey"},
+			"teacherFields": []interface{}{"id", "name", "longname", "externalkey"},
+		},
+	}
+
+	timetable := u.request("getTimetable", postBody).([]interface{})
+	for _, data := range timetable {
+		period := parsePeriod(data.(map[string]interface{}))
+		periods = append(periods, period)
+	}
+	return periods
+}
 
 func (u *User) GetData() {
-	postBody := map[string]interface{}{}
-	rooms := request("getRooms", postBody, u.sessionId, "school="+u.school).(map[string]interface{})["result"].([]interface{})
-
-	for _, r := range rooms {
-		room := r.(map[string]interface{})
-
-		postBody := map[string]interface{}{
-			"options": map[string]interface{}{
-				"element":          map[string]interface{}{"id": room["id"], "type": 4, "keyType": "id"},
-				"showStudentgroup": true,
-				"showLsText":       true,
-				"showLsNumber":     true,
-				"showInfo":         true,
-				"roomFields":       []interface{}{"id", "name"},
-				"klasseFields":     []interface{}{"id", "name", "longname", "externalkey"},
-				"teacherFields":    []interface{}{"id", "name"},
-			},
-		}
-
-		response := request("getTimetable", postBody, u.sessionId, "school="+u.school).(map[string]interface{})
-		timetable := response["result"].([]interface{})
+	rooms := u.GetRooms()
+	for _, room := range rooms {
+		timetable := u.GetTimetable(room.id, 4)
 		timetables = append(timetables, timetable)
 	}
 }
 
+/*
 func (u *User) QuerryTeacher(firstname string, lastname string) {
 	postBody := map[string]interface{}{
 		"type": "2",
@@ -130,8 +204,8 @@ func (u *User) QuerryTeacher(firstname string, lastname string) {
 		"sn":   lastname,
 		"dob":  "0",
 	}
-	response := request("getPersonId", postBody, u.sessionId, "school="+u.school).(map[string]interface{})
-	var teacherId = response["result"].(float64)
+
+	var teacherId = u.request("getPersonId", postBody).(float64)
 	log.Printf("TeacherId: %.0f\n", teacherId)
 
 	for _, timetable := range timetables {
@@ -174,9 +248,4 @@ func (u *User) QuerryTeacher(firstname string, lastname string) {
 		}
 	}
 }
-
-func (u *User) Logout() {
-	postBody := map[string]interface{}{}
-
-	request("logout", postBody, u.sessionId, "school="+u.school)
-}
+*/
