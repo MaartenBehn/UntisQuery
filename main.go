@@ -3,11 +3,15 @@ package main
 import (
 	"UntisQuerry/UntisV2"
 	"fmt"
+	"time"
 )
 
 var timetable []map[int]UntisV2.Period
 
 func main() {
+	date := UntisV2.ToUntisTime(time.Now()) + 1
+	fmt.Println(date)
+
 	user := UntisV2.NewUser("dummy2", "TBZ2020!x", "TBZ Mitte Bremen", "https://tipo.webuntis.com")
 	user.Login()
 	rooms := user.GetRooms()
@@ -16,7 +20,7 @@ func main() {
 	for _, room := range rooms {
 		fmt.Printf("Loading Room: %d of %d. \r", counter, len(rooms))
 
-		periods := user.GetTimeTable(room.Id, 4, 20210512, 20210512)
+		periods := user.GetTimeTable(room.Id, 4, date, date)
 
 		if periods != nil {
 			timetable = append(timetable, periods)
