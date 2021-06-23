@@ -14,7 +14,7 @@ type Teacher struct {
 	//Dids []interface{}
 }
 
-func (u *User) GetTeacher() map[int]Teacher {
+func (u *User) GetTeachers() map[int]Teacher {
 	response := u.request("getTeachers", nil)
 
 	teachers := map[int]Teacher{}
@@ -37,7 +37,7 @@ type Student struct {
 	Gender   string
 }
 
-func (u *User) GetStudent() map[int]Student {
+func (u *User) GetStudents() map[int]Student {
 	response := u.request("getStudents", nil)
 
 	students := map[int]Student{}
@@ -152,8 +152,8 @@ type Period struct {
 	Id           int
 	Date         int
 	EndTime      int
-	Klasse       []int
-	Students     []int
+	Classes      []int
+	Subject      []int
 	Teacher      []int
 	Rooms        []int
 }
@@ -175,10 +175,10 @@ func (u *User) GetTimeTable(id int, idtype int, startDate int, endDate int) map[
 
 		dataMap := data.(map[string]interface{})
 		for _, klasse := range dataMap["kl"].([]interface{}) {
-			period.Klasse = append(period.Klasse, int(klasse.(map[string]interface{})["id"].(float64)))
+			period.Classes = append(period.Classes, int(klasse.(map[string]interface{})["id"].(float64)))
 		}
 		for _, student := range dataMap["su"].([]interface{}) {
-			period.Students = append(period.Students, int(student.(map[string]interface{})["id"].(float64)))
+			period.Subject = append(period.Subject, int(student.(map[string]interface{})["id"].(float64)))
 		}
 		for _, room := range dataMap["ro"].([]interface{}) {
 			period.Rooms = append(period.Rooms, int(room.(map[string]interface{})["id"].(float64)))
@@ -193,12 +193,16 @@ func (u *User) GetTimeTable(id int, idtype int, startDate int, endDate int) map[
 	return periods
 }
 
-func (u *User) GetPersonId(firstname string, lastname string) int {
+func (u *User) GetPersonId(firstname string, lastname string, isTeacher bool) int {
 	param := map[string]interface{}{
-		"type": "2",
-		"fn":   firstname,
-		"sn":   lastname,
-		"dob":  "0",
+		"fn":  firstname,
+		"sn":  lastname,
+		"dob": "0",
+	}
+	if isTeacher {
+		param["type"] = "2"
+	} else {
+		param["type"] = "5"
 	}
 	response := u.request("getPersonId", param)
 	return int(response.Result.(float64))

@@ -3,6 +3,7 @@ package UntisV2
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"io/ioutil"
 	"net/http"
@@ -79,6 +80,10 @@ func (u *User) request(mehtode string, jsonParam interface{}) response {
 	var response response
 	err = json.Unmarshal(body, &response)
 	checkError(err)
+
+	if response.Result == nil {
+		fmt.Println(string(body))
+	}
 
 	return response
 }
