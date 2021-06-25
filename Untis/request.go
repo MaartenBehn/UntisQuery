@@ -1,4 +1,4 @@
-package UntisV2
+package Untis
 
 import (
 	"bytes"
@@ -16,6 +16,7 @@ type User struct {
 	server   string
 
 	loginResp loginResp
+	LoggedIn  bool
 }
 
 func NewUser(username string, password string, school string, server string) *User {
@@ -81,7 +82,7 @@ func (u *User) request(mehtode string, jsonParam interface{}) response {
 	err = json.Unmarshal(body, &response)
 	checkError(err)
 
-	if response.Result == nil {
+	if bytes.Contains(body, []byte("error")) {
 		fmt.Println(string(body))
 	}
 
@@ -110,8 +111,12 @@ func (u *User) Login() {
 	var loginResp loginResp
 	checkError(mapstructure.Decode(response.Result, &loginResp))
 	u.loginResp = loginResp
+
+	fmt.Print("Logged in")
+	u.LoggedIn = true
 }
 
 func (u *User) Logout() {
 	u.request("logout", nil)
+	u.LoggedIn = false
 }

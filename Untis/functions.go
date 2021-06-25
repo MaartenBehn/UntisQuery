@@ -1,4 +1,4 @@
-package UntisV2
+package Untis
 
 import (
 	"github.com/mitchellh/mapstructure"

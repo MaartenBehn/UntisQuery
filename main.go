@@ -1,82 +1,96 @@
 package main
 
 import (
-	"UntisQuerry/UntisV2"
-	"fmt"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/theme"
 	"time"
 )
 
-var user *UntisV2.User
-var timetable []map[int]UntisV2.Period
-var rooms map[int]UntisV2.Room
-var classes map[int]UntisV2.Class
+const (
+	panelIdLogin  = 1
+	panelIdQuerry = 2
+	panelIdMax    = 3
+	panelIdStart  = 1
+)
+
+var window fyne.Window
+var panels []*panel
+var currentPanel int
 
 func main() {
-	user = UntisV2.NewUser("maarten8", "behn500", "TBZ Mitte Bremen", "https://tipo.webuntis.com")
-	user.Login()
+	a := app.New()
 
-	date := UntisV2.ToUntisDate(time.Now())
-	loadTimetable(date, date)
+	a.Settings().SetTheme(theme.DarkTheme())
 
-	querryTeacher("Daniel", "Dibbern")
+	window = a.NewWindow("Untis Teacher Querry")
+	window.Resize(fyne.NewSize(400, 900))
 
-	user.Logout()
-}
+	panels = make([]*panel, panelIdMax)
+	panels[panelIdLogin] = newLoginPanel().panel
+	panels[panelIdQuerry] = newQurreyPanel().panel
 
-func loadTimetable(startDate int, endDate int) {
-	classes = user.GetClasses()
-	rooms = user.GetRooms()
+	currentPanel = panelIdStart
 
-	timetable = []map[int]UntisV2.Period{}
-	counter := 0
-	for _, room := range rooms {
-		fmt.Printf("Loading timetable of room: %d of %d. \r", counter, len(rooms))
+	go updateLoop()
+	window.ShowAndRun()
+	running = false
 
-		periods := user.GetTimeTable(room.Id, 4, startDate, endDate)
-
-		if periods != nil {
-			timetable = append(timetable, periods)
-		}
-
-		counter++
+	if user.LoggedIn {
+		user.Logout()
 	}
 }
 
-func querryTeacher(firstname string, lastname string) {
-	id := user.GetPersonId(firstname, lastname, true)
+var running bool
+var fps float64
 
-	var foundPeriod []UntisV2.Period
-	for _, periods := range timetable {
-		for _, period := range periods {
-			for _, teacher := range period.Teacher {
-				if teacher == id {
-					foundPeriod = append(foundPeriod, period)
-				}
-			}
+const maxFPS float64 = 10
+
+func updateLoop() {
+	startTime := time.Now()
+	var startDuration time.Duration
+	wait := time.Duration(1000000000 / int(maxFPS))
+
+	running = true
+	for running {
+		startDuration = time.Since(startTime)
+		// All update Calls
+
+		checkLayout()
+		checkContent()
+
+		diff := time.Since(startTime) - startDuration
+		if diff > 0 {
+			fps = (wait.Seconds() / diff.Seconds()) * maxFPS
+		} else {
+			fps = 10000
+		}
+		if diff < wait {
+			time.Sleep(wait - diff)
 		}
 	}
+}
 
-	fmt.Printf("%s %s found in %d Periods\n", firstname, lastname, len(foundPeriod))
-	for _, period := range foundPeriod {
-		fmt.Print("Room: ")
-		for _, roomId := range period.Rooms {
-			fmt.Printf("%s ", rooms[roomId].Name)
-		}
+func checkLayout() {
+	newLayout := getLayout(window.Content().Size())
+	if newLayout != currentLayout {
+		currentLayout = newLayout
 
-		fmt.Print("Class: ")
-		for _, classId := range period.Classes {
-			fmt.Printf("%s ", classes[classId].Name)
-		}
-
-		date := UntisV2.ToGoDate(period.Date)
-		fromTime := UntisV2.ToGoTime(period.StartTime)
-		tillTime := UntisV2.ToGoTime(period.EndTime)
-
-		fmt.Printf("Date: %d %s %d From: %02d:%02d  Till: %02d:%02d ",
-			date.Day(), date.Month(), date.Year(),
-			fromTime.Hour(), fromTime.Minute(),
-			tillTime.Hour(), tillTime.Minute())
-
-		fmt.Print("\n")
+		changeContent(panels[currentPanel].content[currentLayout])
 	}
+}
+
+var lastCurrentPanel int
+
+func checkContent() {
+	if currentPanel != lastCurrentPanel {
+		changeContent(panels[currentPanel].content[currentLayout])
+	}
+	lastCurrentPanel = currentPanel
+}
+
+func changeContent(content fyne.CanvasObject) {
+	window.SetContent(content)
+	window.Canvas().Content().Refresh()
+	window.Show()
 }

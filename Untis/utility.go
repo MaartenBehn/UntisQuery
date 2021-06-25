@@ -3,6 +3,7 @@ package Untis
 import (
 	"log"
 	"strings"
+	"time"
 )
 
 func splitAny(s string, seps string) []string {
@@ -23,6 +24,10 @@ func removeEmptiStrings(strings ...string) []string {
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatalf("An Error Occured %v\n", err)
+		log.Printf("An Error Occured %v\n", err)
 	}
+}
+
+func TimeZone() *time.Location {
+	return time.FixedZone("UTC+2", 2*60*60)
 }
