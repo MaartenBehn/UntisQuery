@@ -1,21 +1,21 @@
 package main
 
 import (
-	"UntisQuerry/UntisV2"
+	Untis "UntisAPI"
 	"fmt"
 	"time"
 )
 
-var user *UntisV2.User
-var timetable []map[int]UntisV2.Period
-var rooms map[int]UntisV2.Room
-var classes map[int]UntisV2.Class
+var user *Untis.User
+var timetable []map[int]Untis.Period
+var rooms map[int]Untis.Room
+var classes map[int]Untis.Class
 
 func main() {
-	user = UntisV2.NewUser("maarten8", "behn500", "TBZ Mitte Bremen", "https://tipo.webuntis.com")
+	user = Untis.NewUser("maarten8", "behn500", "TBZ Mitte Bremen", "https://tipo.webuntis.com")
 	user.Login()
 
-	date := UntisV2.ToUntisDate(time.Now())
+	date := Untis.ToUntisDate(time.Now())
 	loadTimetable(date, date)
 
 	querryTeacher("Daniel", "Dibbern")
@@ -27,7 +27,7 @@ func loadTimetable(startDate int, endDate int) {
 	classes = user.GetClasses()
 	rooms = user.GetRooms()
 
-	timetable = []map[int]UntisV2.Period{}
+	timetable = []map[int]Untis.Period{}
 	counter := 0
 	for _, room := range rooms {
 		fmt.Printf("Loading timetable of room: %d of %d. \r", counter, len(rooms))
@@ -45,7 +45,7 @@ func loadTimetable(startDate int, endDate int) {
 func querryTeacher(firstname string, lastname string) {
 	id := user.GetPersonId(firstname, lastname, true)
 
-	var foundPeriod []UntisV2.Period
+	var foundPeriod []Untis.Period
 	for _, periods := range timetable {
 		for _, period := range periods {
 			for _, teacher := range period.Teacher {
@@ -63,20 +63,20 @@ func querryTeacher(firstname string, lastname string) {
 			fmt.Printf("%s ", rooms[roomId].Name)
 		}
 
-		fmt.Print("Class: ")
+		fmt.Print("\nClass: ")
 		for _, classId := range period.Classes {
 			fmt.Printf("%s ", classes[classId].Name)
 		}
 
-		date := UntisV2.ToGoDate(period.Date)
-		fromTime := UntisV2.ToGoTime(period.StartTime)
-		tillTime := UntisV2.ToGoTime(period.EndTime)
+		date := Untis.ToGoDate(period.Date)
+		fromTime := Untis.ToGoTime(period.StartTime)
+		tillTime := Untis.ToGoTime(period.EndTime)
 
-		fmt.Printf("Date: %d %s %d From: %02d:%02d  Till: %02d:%02d ",
+		fmt.Printf("\nDate: %d %s %d From: %02d:%02d  Till: %02d:%02d ",
 			date.Day(), date.Month(), date.Year(),
 			fromTime.Hour(), fromTime.Minute(),
 			tillTime.Hour(), tillTime.Minute())
 
-		fmt.Print("\n")
+		fmt.Print("\n\n")
 	}
 }
