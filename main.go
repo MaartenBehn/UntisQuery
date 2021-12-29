@@ -1,7 +1,6 @@
 package main
 
 import (
-	"UntisQuerry/UntisV2"
 	"fmt"
 	"time"
 )
