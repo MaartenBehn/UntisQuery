@@ -1,5 +1,6 @@
 package main
 
+/*
 import (
 	"UntisAPI"
 	"time"
@@ -88,3 +89,5 @@ func changeContent(content fyne.CanvasObject) {
 	window.Canvas().Content().Refresh()
 	window.Show()
 }
+
+*/

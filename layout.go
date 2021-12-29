@@ -1,5 +1,6 @@
 package main
 
+/*
 import "fyne.io/fyne/v2"
 
 const (
@@ -16,3 +17,5 @@ func getLayout(size fyne.Size) int {
 	}
 	return layoutDesktop
 }
+
+*/

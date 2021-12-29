@@ -1,6 +1,8 @@
 package main
 
+/*
 import (
+	"UntisAPI"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"strconv"
@@ -102,3 +104,6 @@ func (p querryPanel) onLoadClick() {
 func (p querryPanel) onQuerryClick() {
 	p.result.SetText(querryTeacher(p.firstName.Text, p.lastName.Text))
 }
+
+
+*/

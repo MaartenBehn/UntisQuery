@@ -1,11 +1,12 @@
 package main
 
+/*
 import (
-	"UntisQuerry/Untis"
+	"UntisAPI"
 	"fmt"
 )
 
-var user *Untis.User
+var user *UntisAPI.User
 var timetable []map[int]Untis.Period
 var rooms map[int]Untis.Room
 var classes map[int]Untis.Class
@@ -75,3 +76,5 @@ func querryTeacher(firstname string, lastname string) string {
 	}
 	return result
 }
+
+*/
