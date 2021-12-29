@@ -1,20 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"UntisAPI"
 	"time"
 )
 
-var user *UntisV2.User
-var timetable []map[int]UntisV2.Period
-var rooms map[int]UntisV2.Room
-var classes map[int]UntisV2.Class
+var user *UntisAPI.User
+var timetable []map[int]UntisAPI.Period
+var rooms map[int]UntisAPI.Room
+var classes map[int]UntisAPI.Class
 
 func main() {
-	user = UntisV2.NewUser("maarten8", "behn500", "TBZ Mitte Bremen", "https://tipo.webuntis.com")
+	user = UntisAPI.NewUser("maarten8", "behn500", "TBZ Mitte Bremen", "https://tipo.webuntis.com")
 	user.Login()
 
-	date := UntisV2.ToUntisDate(time.Now())
+	date := UntisAPI.ToUntisDate(time.Now())
 	loadTimetable(date, date)
 
 	panels = make([]*panel, panelIdMax)

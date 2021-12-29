@@ -1,7 +1,6 @@
 package main
 
 import (
-	"UntisQuerry/Untis"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"strconv"
@@ -80,7 +79,7 @@ func (p querryPanel) onLoadClick() {
 		return
 	}
 
-	fromDate := time.Date(fromYear, time.Month(fromMonth), fromDay, 0, 0, 0, 0, Untis.TimeZone())
+	fromDate := time.Date(fromYear, time.Month(fromMonth), fromDay, 0, 0, 0, 0, UntisAPI.TimeZone())
 
 	tillDay, err := strconv.Atoi(p.tillDay.Text)
 	if err != nil {
@@ -95,9 +94,9 @@ func (p querryPanel) onLoadClick() {
 		return
 	}
 
-	tillDate := time.Date(tillYear, time.Month(tillMonth), tillDay, 0, 0, 0, 0, Untis.TimeZone())
+	tillDate := time.Date(tillYear, time.Month(tillMonth), tillDay, 0, 0, 0, 0, UntisAPI.TimeZone())
 
-	loadTimetable(Untis.ToUntisDate(fromDate), Untis.ToUntisDate(tillDate))
+	loadTimetable(UntisAPI.ToUntisDate(fromDate), UntisAPI.ToUntisDate(tillDate))
 }
 
 func (p querryPanel) onQuerryClick() {

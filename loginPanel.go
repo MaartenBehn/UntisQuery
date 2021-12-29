@@ -1,7 +1,7 @@
 package main
 
 import (
-	"UntisQuerry/Untis"
+	"UntisAPI"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
@@ -46,7 +46,7 @@ func newLoginPanel() *loginPanel {
 }
 
 func (p *loginPanel) onloginClick() {
-	user = Untis.NewUser(p.name.Text, p.password.Text, p.school.Text, p.server.Text)
+	user = UntisAPI.NewUser(p.name.Text, p.password.Text, p.school.Text, p.server.Text)
 
 	defer func() {
 		if err := recover(); err != nil {
