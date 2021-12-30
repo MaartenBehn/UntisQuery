@@ -1,80 +1,38 @@
 package main
 
-/*
-import (
-	"UntisAPI"
-	"fmt"
-)
+import "github.com/Stroby241/UntisAPI"
 
 var user *UntisAPI.User
-var timetable []map[int]Untis.Period
-var rooms map[int]Untis.Room
-var classes map[int]Untis.Class
 
-func main3() {
+func Login(username string, password string, school string, server string) {
+	user = UntisAPI.NewUser(username, password, school, server)
+	err := user.Login()
+	if err != nil {
+		user = nil
+		return
+	}
 
+	initCalls()
+}
+
+func Logout() {
+	if user != nil {
+		return
+	}
 	user.Logout()
+	user = nil
 }
 
-func loadTimetable(startDate int, endDate int) {
-	classes = user.GetClasses()
-	rooms = user.GetRooms()
+var rooms map[int]UntisAPI.Room
 
-	timetable = []map[int]Untis.Period{}
-	counter := 0
-	for _, room := range rooms {
-		fmt.Printf("Loading timetable of room: %d of %d. \r", counter, len(rooms))
+func initCalls() {
+	if user != nil {
+		return
+	}
+	var err error
 
-		periods := user.GetTimeTable(room.Id, 4, startDate, endDate)
-
-		if periods != nil {
-			timetable = append(timetable, periods)
-		}
-
-		counter++
+	rooms, err = user.GetRooms()
+	if err != nil {
+		return
 	}
 }
-
-func querryTeacher(firstname string, lastname string) string {
-	result := ""
-
-	id := user.GetPersonId(firstname, lastname, true)
-
-	var foundPeriod []Untis.Period
-	for _, periods := range timetable {
-		for _, period := range periods {
-			for _, teacher := range period.Teacher {
-				if teacher == id {
-					foundPeriod = append(foundPeriod, period)
-				}
-			}
-		}
-	}
-
-	result += fmt.Sprintf("%s %s found in %d Periods\n", firstname, lastname, len(foundPeriod))
-	for _, period := range foundPeriod {
-		result += fmt.Sprintf("Room: ")
-		for _, roomId := range period.Rooms {
-			result += fmt.Sprintf("%s ", rooms[roomId].Name)
-		}
-
-		result += fmt.Sprintf("Class: ")
-		for _, classId := range period.Classes {
-			result += fmt.Sprintf("%s ", classes[classId].Name)
-		}
-
-		date := Untis.ToGoDate(period.Date)
-		fromTime := Untis.ToGoTime(period.StartTime)
-		tillTime := Untis.ToGoTime(period.EndTime)
-
-		result += fmt.Sprintf("Date: %d %s %d From: %02d:%02d  Till: %02d:%02d ",
-			date.Day(), date.Month(), date.Year(),
-			fromTime.Hour(), fromTime.Minute(),
-			tillTime.Hour(), tillTime.Minute())
-
-		result += fmt.Sprintf("\n")
-	}
-	return result
-}
-
-*/

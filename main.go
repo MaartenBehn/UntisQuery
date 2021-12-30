@@ -1,93 +1,36 @@
 package main
 
-/*
 import (
-	"UntisAPI"
-	"time"
+	"github.com/Stroby241/UntisQuerry/event"
+	"github.com/Stroby241/UntisQuerry/ui"
+	"github.com/hajimehoshi/ebiten/v2"
+	"log"
 )
 
-var user *UntisAPI.User
-var timetable []map[int]UntisAPI.Period
-var rooms map[int]UntisAPI.Room
-var classes map[int]UntisAPI.Class
+type Game struct{}
+
+func (g *Game) Update() error {
+	event.Go(event.EventUpdate, nil)
+	return nil
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+	event.Go(event.EventDraw, screen)
+}
+
+func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+	return outsideWidth, outsideHeight
+}
 
 func main() {
-	user = UntisAPI.NewUser("maarten8", "behn500", "TBZ Mitte Bremen", "https://tipo.webuntis.com")
-	user.Login()
+	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowTitle("Untis Querry")
 
-	date := UntisAPI.ToUntisDate(time.Now())
-	loadTimetable(date, date)
+	ui.CreateUI()
 
-	panels = make([]*panel, panelIdMax)
-	panels[panelIdLogin] = newLoginPanel().panel
-	panels[panelIdQuerry] = newQurreyPanel().panel
+	event.Go(event.EventSetPage, ui.PageStart)
 
-	currentPanel = panelIdStart
-
-	go updateLoop()
-	window.ShowAndRun()
-	running = false
-
-	if user.LoggedIn {
-		user.Logout()
+	if err := ebiten.RunGame(&Game{}); err != nil {
+		log.Fatal(err)
 	}
 }
-
-var running bool
-var fps float64
-
-	timetable = []map[int]UntisV2.Period{}
-	counter := 0
-	for _, room := range rooms {
-		fmt.Printf("Loading timetable of room: %d of %d. \r", counter, len(rooms))
-
-func updateLoop() {
-	startTime := time.Now()
-	var startDuration time.Duration
-	wait := time.Duration(1000000000 / int(maxFPS))
-
-	running = true
-	for running {
-		startDuration = time.Since(startTime)
-		// All update Calls
-
-		checkLayout()
-		checkContent()
-
-		diff := time.Since(startTime) - startDuration
-		if diff > 0 {
-			fps = (wait.Seconds() / diff.Seconds()) * maxFPS
-		} else {
-			fps = 10000
-		}
-		if diff < wait {
-			time.Sleep(wait - diff)
-		}
-	}
-}
-
-func checkLayout() {
-	newLayout := getLayout(window.Content().Size())
-	if newLayout != currentLayout {
-		currentLayout = newLayout
-
-		changeContent(panels[currentPanel].content[currentLayout])
-	}
-}
-
-var lastCurrentPanel int
-
-func checkContent() {
-	if currentPanel != lastCurrentPanel {
-		changeContent(panels[currentPanel].content[currentLayout])
-	}
-	lastCurrentPanel = currentPanel
-}
-
-func changeContent(content fyne.CanvasObject) {
-	window.SetContent(content)
-	window.Canvas().Content().Refresh()
-	window.Show()
-}
-
-*/

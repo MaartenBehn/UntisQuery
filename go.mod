@@ -1,16 +1,22 @@
-module UntisQuerry
+module github.com/Stroby241/UntisQuerry
 
 go 1.17
 
-require fyne.io/fyne/v2 v2.1.2
+require (
+	github.com/Stroby241/UntisAPI v0.0.0-20211229213420-9a82163a7aa9
+	github.com/blizzy78/ebitenui v0.0.0-20211114161546-ca1a302d930b
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+	github.com/hajimehoshi/ebiten/v2 v2.2.3
+	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
+)
 
 require (
-	github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3 // indirect
-	github.com/goki/freetype v0.0.0-20181231101311-fa8a33aabaff // indirect
-	github.com/srwiley/oksvg v0.0.0-20200311192757-870daf9aa564 // indirect
-	github.com/srwiley/rasterx v0.0.0-20200120212402-85cb7272f5e9 // indirect
-	github.com/yuin/goldmark v1.3.8 // indirect
-	golang.org/x/image v0.0.0-20200430140353-33d19683fad8 // indirect
-	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
-	golang.org/x/text v0.3.3 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20211024062804-40e447a793be // indirect
+	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
+	github.com/mitchellh/mapstructure v1.4.3 // indirect
+	golang.org/x/exp v0.0.0-20211111183329-cb5df436b1a8 // indirect
+	golang.org/x/mobile v0.0.0-20211109191125-d61a72f26a1a // indirect
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
+	golang.org/x/sys v0.0.0-20211113001501-0c823b97ae02 // indirect
 )
