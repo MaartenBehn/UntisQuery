@@ -80,55 +80,30 @@ func createQuerryPage(res *uiResources) widget.PreferredSizeLocateableWidget {
 		),
 	}
 
-	fromTime := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewRowLayout(
+	timeContainer := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewRowLayout(
 		widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
 		widget.RowLayoutOpts.Padding(widget.NewInsetsSimple(5)),
 	)))
 
-	fromDayInput := widget.NewTextInput(append(baseInputOpts,
+	dayInput := widget.NewTextInput(append(baseInputOpts,
 		widget.TextInputOpts.Placeholder("From Day"),
 	)...)
-	fromDayInput.InputText = fmt.Sprint(now.Day())
-	fromTime.AddChild(fromDayInput)
+	dayInput.InputText = fmt.Sprint(now.Day())
+	timeContainer.AddChild(dayInput)
 
-	fromMonthInput := widget.NewTextInput(append(baseInputOpts,
+	monthInput := widget.NewTextInput(append(baseInputOpts,
 		widget.TextInputOpts.Placeholder("From Month"),
 	)...)
-	fromMonthInput.InputText = fmt.Sprint(int(now.Month()))
-	fromTime.AddChild(fromMonthInput)
+	monthInput.InputText = fmt.Sprint(int(now.Month()))
+	timeContainer.AddChild(monthInput)
 
-	fromYearInput := widget.NewTextInput(append(baseInputOpts,
+	yearInput := widget.NewTextInput(append(baseInputOpts,
 		widget.TextInputOpts.Placeholder("From Month"),
 	)...)
-	fromYearInput.InputText = fmt.Sprint(now.Year())
-	fromTime.AddChild(fromYearInput)
+	yearInput.InputText = fmt.Sprint(now.Year())
+	timeContainer.AddChild(yearInput)
 
-	c.AddChild(fromTime)
-
-	tillTime := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewRowLayout(
-		widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-		widget.RowLayoutOpts.Padding(widget.NewInsetsSimple(5)),
-	)))
-
-	tillDayInput := widget.NewTextInput(append(baseInputOpts,
-		widget.TextInputOpts.Placeholder("Till Day"),
-	)...)
-	tillDayInput.InputText = fmt.Sprint(now.Day())
-	tillTime.AddChild(tillDayInput)
-
-	tillMonthInput := widget.NewTextInput(append(baseInputOpts,
-		widget.TextInputOpts.Placeholder("Till Month"),
-	)...)
-	tillMonthInput.InputText = fmt.Sprint(int(now.Month()))
-	tillTime.AddChild(tillMonthInput)
-
-	tillYearInput := widget.NewTextInput(append(baseInputOpts,
-		widget.TextInputOpts.Placeholder("Till Month"),
-	)...)
-	tillYearInput.InputText = fmt.Sprint(now.Year())
-	tillTime.AddChild(tillYearInput)
-
-	c.AddChild(tillTime)
+	c.AddChild(timeContainer)
 
 	c.AddChild(widget.NewButton(
 		widget.ButtonOpts.Image(res.button.image),
@@ -141,38 +116,23 @@ func createQuerryPage(res *uiResources) widget.PreferredSizeLocateableWidget {
 				return
 			}
 
-			fromDay, err := strconv.Atoi(fromDayInput.InputText)
+			day, err := strconv.Atoi(dayInput.InputText)
 			if err != nil {
 				return
 			}
-			fromMonth, err := strconv.Atoi(fromMonthInput.InputText)
+			month, err := strconv.Atoi(monthInput.InputText)
 			if err != nil {
 				return
 			}
-			fromYear, err := strconv.Atoi(fromYearInput.InputText)
-			if err != nil {
-				return
-			}
-
-			fromDate := time.Date(fromYear, time.Month(fromMonth), fromDay, 0, 0, 0, 0, now.Location())
-
-			tillDay, err := strconv.Atoi(tillDayInput.InputText)
-			if err != nil {
-				return
-			}
-			tillMonth, err := strconv.Atoi(tillMonthInput.InputText)
-			if err != nil {
-				return
-			}
-			tillYear, err := strconv.Atoi(tillYearInput.InputText)
+			year, err := strconv.Atoi(yearInput.InputText)
 			if err != nil {
 				return
 			}
 
-			tillDate := time.Date(tillYear, time.Month(tillMonth), tillDay, 0, 0, 0, 0, now.Location())
+			fromDate := time.Date(year, time.Month(month), day, 0, 0, 0, 0, now.Location())
 
 			go func() {
-				event.Go(event.EventLoadTimeTable, [2]time.Time{fromDate, tillDate})
+				event.Go(event.EventLoadTimeTable, fromDate)
 				event.Go(event.EventQuerryTaecher, teacher)
 			}()
 		}),
@@ -186,6 +146,24 @@ func createQuerryPage(res *uiResources) widget.PreferredSizeLocateableWidget {
 			event.Go(event.EventLogout, nil)
 		}),
 	))
+
+	c.AddChild(widget.NewButton(
+		widget.ButtonOpts.Image(res.button.image),
+		widget.ButtonOpts.Text("Fill [Debug]", res.button.face, res.button.text),
+		widget.ButtonOpts.TextPadding(res.button.padding),
+		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
+			dayInput.InputText = "11"
+			monthInput.InputText = "1"
+			yearInput.InputText = "2022"
+		}),
+	))
+
+	periodText := widget.NewLabel(widget.LabelOpts.Text("", res.text.face, res.label.text))
+	c.AddChild(periodText)
+
+	event.On(event.EventUpdateQuerryText, func(data interface{}) {
+		periodText.Label = data.(string)
+	})
 
 	return c
 }

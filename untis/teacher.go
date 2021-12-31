@@ -5,6 +5,7 @@ import (
 	"github.com/Stroby241/UntisAPI"
 	"github.com/Stroby241/UntisQuerry/event"
 	"github.com/Stroby241/UntisQuerry/state"
+	"sort"
 )
 
 func addTeacher(firstname string, lastname string) bool {
@@ -32,47 +33,83 @@ func addTeacher(firstname string, lastname string) bool {
 	return true
 }
 
+type period struct {
+	startTime int
+	endTime   int
+	classes   []int
+	subjects  []int
+	rooms     []int
+}
+
 func queryTeacher(teacher *state.Teacher) bool {
 	if teacher == nil || timetable == nil || rooms == nil || classes == nil {
 		return false
 	}
 
 	event.Go(event.EventStartLoading, "Scanning Data")
-	state.FoundPeriods = []UntisAPI.Period{}
+	foundPeriods := []UntisAPI.Period{}
 	for i, periods := range timetable {
 		event.Go(event.EventUpdateLoading, float64(i)/float64(len(timetable))*100.0)
 		for _, period := range periods {
 			for _, testTeacher := range period.Teacher {
 				if testTeacher == teacher.Id {
-					state.FoundPeriods = append(state.FoundPeriods, period)
+					foundPeriods = append(foundPeriods, period)
 				}
 			}
 		}
 	}
 
-	fmt.Printf("\n%s %s found in %d Periods.\n", teacher.Firstname, teacher.Lastname, len(state.FoundPeriods))
-	for _, period := range state.FoundPeriods {
-		fmt.Printf("Room: ")
-		for _, roomId := range period.Rooms {
-			fmt.Printf("%s ", rooms[roomId].Name)
+	periods := []*period{}
+	for _, foundPeriod := range foundPeriods {
+
+		found := false
+		for _, p := range periods {
+			if p.endTime == foundPeriod.StartTime {
+				p.endTime = foundPeriod.EndTime
+				found = true
+			} else if p.startTime == foundPeriod.EndTime {
+				p.startTime = foundPeriod.StartTime
+				found = true
+			}
 		}
 
-		fmt.Printf("Class: ")
-		for _, classId := range period.Classes {
-			fmt.Printf("%s ", classes[classId].Name)
+		if !found {
+			periods = append(periods, &period{
+				startTime: foundPeriod.StartTime,
+				endTime:   foundPeriod.EndTime,
+				classes:   foundPeriod.Classes,
+				subjects:  foundPeriod.Subject,
+				rooms:     foundPeriod.Rooms,
+			})
 		}
+	}
 
-		date := UntisAPI.ToGoDate(period.Date)
-		fromTime := UntisAPI.ToGoTime(period.StartTime)
-		tillTime := UntisAPI.ToGoTime(period.EndTime)
+	sort.Slice(periods, func(i, j int) bool {
+		return periods[i].startTime < periods[j].startTime
+	})
 
-		fmt.Printf("Date: %d %s %d From: %02d:%02d  Till: %02d:%02d ",
-			date.Day(), date.Month(), date.Year(),
+	result := fmt.Sprintf("%s %s found in %d Periods\n", teacher.Firstname, teacher.Lastname, len(foundPeriods))
+	for _, period := range periods {
+		fromTime := UntisAPI.ToGoTime(period.startTime)
+		tillTime := UntisAPI.ToGoTime(period.endTime)
+
+		result += fmt.Sprintf("From: %02d:%02d  Till: %02d:%02d ",
 			fromTime.Hour(), fromTime.Minute(),
 			tillTime.Hour(), tillTime.Minute())
 
-		fmt.Printf("\n")
+		result += fmt.Sprintf("Room: ")
+		for _, roomId := range period.rooms {
+			result += fmt.Sprintf("%s ", rooms[roomId].Name)
+		}
+
+		result += fmt.Sprintf("Class: ")
+		for _, classId := range period.classes {
+			result += fmt.Sprintf("%s ", classes[classId].Name)
+		}
+
+		result += fmt.Sprintf("\n")
 	}
+	event.Go(event.EventUpdateQuerryText, result)
 
 	event.Go(event.EventSetPage, state.PageQuerry)
 	return true

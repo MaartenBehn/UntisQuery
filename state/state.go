@@ -1,7 +1,5 @@
 package state
 
-import "github.com/Stroby241/UntisAPI"
-
 var Teachers []*Teacher
 
 type Teacher struct {
@@ -18,5 +16,3 @@ const (
 	PageLoading    = 4
 	PageMax        = 5
 )
-
-var FoundPeriods []UntisAPI.Period

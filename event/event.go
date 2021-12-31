@@ -15,12 +15,13 @@ const (
 
 	EventLoadTimeTable EventId = 8
 
-	EventQuerryTaecher EventId = 9
+	EventQuerryTaecher    EventId = 9
+	EventUpdateQuerryText EventId = 10
 
-	EventStartLoading  EventId = 10
-	EventUpdateLoading EventId = 11
+	EventStartLoading  EventId = 11
+	EventUpdateLoading EventId = 12
 
-	eventMax = 12
+	eventMax = 13
 )
 
 type EventId int

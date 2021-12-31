@@ -1,7 +1,6 @@
 package untis
 
 import (
-	"fmt"
 	"github.com/Stroby241/UntisAPI"
 	"github.com/Stroby241/UntisQuerry/event"
 	"github.com/Stroby241/UntisQuerry/state"
@@ -31,8 +30,7 @@ func Init() {
 	})
 
 	event.On(event.EventLoadTimeTable, func(data interface{}) {
-		times := data.([2]time.Time)
-		loadTimetable(times[0], times[1])
+		loadTimetable(data.(time.Time))
 	})
 
 	event.On(event.EventQuerryTaecher, func(data interface{}) {
@@ -84,29 +82,25 @@ func logout() {
 }
 
 var timetable []map[int]UntisAPI.Period
-var startDate int
-var endDate int
+var date int
 
-func loadTimetable(startTime time.Time, endTime time.Time) bool {
-	newStartDate := UntisAPI.ToUntisDate(startTime)
-	newEndDate := UntisAPI.ToUntisDate(endTime)
+func loadTimetable(dateTime time.Time) bool {
+	newDate := UntisAPI.ToUntisDate(dateTime)
 
-	if startDate == newStartDate && endDate == newEndDate {
+	if date == newDate {
 		return true
 	}
 
-	startDate = newStartDate
-	endDate = newEndDate
+	date = newDate
 
 	timetable = []map[int]UntisAPI.Period{}
 	counter := 0
 
 	event.Go(event.EventStartLoading, "Timetable")
 	for _, room := range rooms {
-		fmt.Printf("Loading timetable of room: %d of %d. \r", counter, len(rooms))
 		event.Go(event.EventUpdateLoading, float64(counter)/float64(len(rooms))*100.0)
 
-		periods, err := user.GetTimeTable(room.Id, 4, startDate, endDate)
+		periods, err := user.GetTimeTable(room.Id, 4, date, date)
 		if err != nil {
 			return false
 		}
