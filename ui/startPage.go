@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"github.com/Stroby241/UntisQuerry/event"
+	"github.com/Stroby241/UntisQuerry/state"
 	"github.com/blizzy78/ebitenui/widget"
 )
 
@@ -13,24 +15,15 @@ func createStartPage(res *uiResources) widget.PreferredSizeLocateableWidget {
 	)
 
 	c.AddChild(widget.NewLabel(
-		widget.LabelOpts.Text("Time Travel Game", res.text.face, res.label.text)),
+		widget.LabelOpts.Text("Untis Querry", res.text.face, res.label.text)),
 	)
 
 	c.AddChild(widget.NewButton(
 		widget.ButtonOpts.Image(res.button.image),
-		widget.ButtonOpts.Text("Start Game", res.button.face, res.button.text),
+		widget.ButtonOpts.Text("Login", res.button.face, res.button.text),
 		widget.ButtonOpts.TextPadding(res.button.padding),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-
-		}),
-	))
-
-	c.AddChild(widget.NewButton(
-		widget.ButtonOpts.Image(res.button.image),
-		widget.ButtonOpts.Text("Map Editor", res.button.face, res.button.text),
-		widget.ButtonOpts.TextPadding(res.button.padding),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-
+			event.Go(event.EventSetPage, state.PageLogin)
 		}),
 	))
 

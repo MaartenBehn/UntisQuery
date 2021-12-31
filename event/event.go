@@ -1,12 +1,26 @@
 package event
 
 const (
-	EventUpdate EventId = 1
-	EventDraw   EventId = 2
+	EventUpdate EventId = 0
+	EventDraw   EventId = 1
 
-	EventSetPage EventId = 3
+	EventSetPage EventId = 2
 
-	eventMax = 255
+	EventLogin       EventId = 3
+	EventLoginResult EventId = 4
+	EventLogout      EventId = 5
+
+	EventAddTeacher        EventId = 6
+	EventUpdateQuerryPanel EventId = 7
+
+	EventLoadTimeTable EventId = 8
+
+	EventQuerryTaecher EventId = 9
+
+	EventStartLoading  EventId = 10
+	EventUpdateLoading EventId = 11
+
+	eventMax = 12
 )
 
 type EventId int

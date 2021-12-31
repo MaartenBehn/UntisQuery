@@ -2,19 +2,15 @@ package ui
 
 import (
 	"github.com/Stroby241/UntisQuerry/event"
+	"github.com/Stroby241/UntisQuerry/state"
 	"github.com/blizzy78/ebitenui"
 	"github.com/blizzy78/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-const (
-	PageStart = 0
-	PageMax   = 1
-)
-
 var pages []widget.PreferredSizeLocateableWidget
 
-func CreateUI() (*ebitenui.UI, func(), error) {
+func Init() (*ebitenui.UI, func(), error) {
 	res, err := newUIResources()
 	if err != nil {
 		return nil, nil, err
@@ -79,17 +75,23 @@ func CreateUI() (*ebitenui.UI, func(), error) {
 
 func createPages(res *uiResources, ui *ebitenui.UI) {
 
-	pages = make([]widget.PreferredSizeLocateableWidget, PageMax)
+	pages = make([]widget.PreferredSizeLocateableWidget, state.PageMax)
 
 	/*
 		uiFunc := func() *ebitenui.UI {
 			return ui
 		}
-
 	*/
 
-	pages[PageStart] = createStartPage(res)
+	pages[state.PageStart] = createStartPage(res)
+	pages[state.PageLogin] = createLoginPage(res)
+	pages[state.PageQuerry] = createQuerryPage(res)
+	pages[state.PageAddTeacher] = createAddTeacherPage(res)
+	pages[state.PageLoading] = createLoadingPage(res)
 
+	event.On(event.EventUpdateQuerryPanel, func(data interface{}) {
+		pages[state.PageQuerry] = createQuerryPage(res)
+	})
 }
 
 func setPage(pageId int, flipBook *widget.FlipBook) {

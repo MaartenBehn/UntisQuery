@@ -2,7 +2,9 @@ package main
 
 import (
 	"github.com/Stroby241/UntisQuerry/event"
+	"github.com/Stroby241/UntisQuerry/state"
 	"github.com/Stroby241/UntisQuerry/ui"
+	"github.com/Stroby241/UntisQuerry/untis"
 	"github.com/hajimehoshi/ebiten/v2"
 	"log"
 )
@@ -26,9 +28,13 @@ func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Untis Querry")
 
-	ui.CreateUI()
+	_, _, err := ui.Init()
+	if err != nil {
+		return
+	}
+	untis.Init()
 
-	event.Go(event.EventSetPage, ui.PageStart)
+	event.Go(event.EventSetPage, state.PageStart)
 
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
