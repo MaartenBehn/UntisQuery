@@ -12,8 +12,7 @@ var user *UntisAPI.User
 func Init() {
 	event.On(event.EventLogin, func(data interface{}) {
 		strings := data.([4]string)
-		success := login(strings[0], strings[1], strings[2], strings[3])
-		event.Go(event.EventLoginResult, success)
+		login(strings[0], strings[1], strings[2], strings[3])
 	})
 
 	event.On(event.EventLogout, func(data interface{}) {
@@ -38,37 +37,43 @@ func Init() {
 	})
 }
 
-func login(username string, password string, school string, server string) bool {
+func login(username string, password string, school string, server string) {
 	user = UntisAPI.NewUser(username, password, school, server)
 	err := user.Login()
 	if err != nil {
 		user = nil
-		return false
+		event.Go(event.EventLoginResult, false)
+		return
 	}
 
-	return initCalls()
+	go initCalls()
 }
 
 var rooms map[int]UntisAPI.Room
 var classes map[int]UntisAPI.Class
 
-func initCalls() bool {
+func initCalls() {
 	if user == nil {
-		return false
+		event.Go(event.EventLoginResult, false)
+		return
 	}
-	var err error
 
+	event.Go(event.EventStartLoading, "Login")
+	var err error
 	rooms, err = user.GetRooms()
 	if err != nil {
-		return false
+		event.Go(event.EventLoginResult, false)
+		return
 	}
 
+	event.Go(event.EventUpdateLoading, 50.0)
 	classes, err = user.GetClasses()
 	if err != nil {
-		return false
+		event.Go(event.EventLoginResult, false)
+		return
 	}
 
-	return true
+	event.Go(event.EventLoginResult, true)
 }
 
 func logout() {

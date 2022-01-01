@@ -12,7 +12,7 @@ func createLoadingPage(res *uiResources) widget.PreferredSizeLocateableWidget {
 	c := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Padding(widget.NewInsetsSimple(30)),
+			widget.RowLayoutOpts.Padding(widget.NewInsetsSimple(5)),
 		)),
 	)
 

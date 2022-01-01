@@ -3,7 +3,6 @@ package ui
 import (
 	"github.com/blizzy78/ebitenui/image"
 	"github.com/blizzy78/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"golang.org/x/image/font"
 	"image/color"
 	"strconv"
@@ -230,22 +229,22 @@ func newUIResources() (*uiResources, error) {
 }
 
 func newButtonResources(fonts *Font) (*buttonResources, error) {
-	idle, err := loadImageNineSlice("res/graphics/button-idle.png", 12, 0)
+	idle, err := loadImageNineSlice("graphics/button-idle.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	hover, err := loadImageNineSlice("res/graphics/button-hover.png", 12, 0)
+	hover, err := loadImageNineSlice("graphics/button-hover.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	pressed, err := loadImageNineSlice("res/graphics/button-pressed.png", 12, 0)
+	pressed, err := loadImageNineSlice("graphics/button-pressed.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	disabled, err := loadImageNineSlice("res/graphics/button-disabled.png", 12, 0)
+	disabled, err := loadImageNineSlice("graphics/button-disabled.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -275,32 +274,32 @@ func newButtonResources(fonts *Font) (*buttonResources, error) {
 }
 
 func newCheckboxResources() (*checkboxResources, error) {
-	idle, err := loadImageNineSlice("res/graphics/checkbox-idle.png", 20, 0)
+	idle, err := loadImageNineSlice("graphics/checkbox-idle.png", 20, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	hover, err := loadImageNineSlice("res/graphics/checkbox-hover.png", 20, 0)
+	hover, err := loadImageNineSlice("graphics/checkbox-hover.png", 20, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	disabled, err := loadImageNineSlice("res/graphics/checkbox-disabled.png", 20, 0)
+	disabled, err := loadImageNineSlice("graphics/checkbox-disabled.png", 20, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	checked, err := loadGraphicImages("res/graphics/checkbox-checked-idle.png", "res/graphics/checkbox-checked-disabled.png")
+	checked, err := loadGraphicImages("graphics/checkbox-checked-idle.png", "graphics/checkbox-checked-disabled.png")
 	if err != nil {
 		return nil, err
 	}
 
-	unchecked, err := loadGraphicImages("res/graphics/checkbox-unchecked-idle.png", "res/graphics/checkbox-unchecked-disabled.png")
+	unchecked, err := loadGraphicImages("graphics/checkbox-unchecked-idle.png", "graphics/checkbox-unchecked-disabled.png")
 	if err != nil {
 		return nil, err
 	}
 
-	greyed, err := loadGraphicImages("res/graphics/checkbox-greyed-idle.png", "res/graphics/checkbox-greyed-disabled.png")
+	greyed, err := loadGraphicImages("graphics/checkbox-greyed-idle.png", "graphics/checkbox-greyed-disabled.png")
 	if err != nil {
 		return nil, err
 	}
@@ -335,22 +334,22 @@ func newLabelResources(fonts *Font) *labelResources {
 }
 
 func newComboButtonResources(fonts *Font) (*comboButtonResources, error) {
-	idle, err := loadImageNineSlice("res/graphics/combo-button-idle.png", 12, 0)
+	idle, err := loadImageNineSlice("graphics/combo-button-idle.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	hover, err := loadImageNineSlice("res/graphics/combo-button-hover.png", 12, 0)
+	hover, err := loadImageNineSlice("graphics/combo-button-hover.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	pressed, err := loadImageNineSlice("res/graphics/combo-button-pressed.png", 12, 0)
+	pressed, err := loadImageNineSlice("graphics/combo-button-pressed.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	disabled, err := loadImageNineSlice("res/graphics/combo-button-disabled.png", 12, 0)
+	disabled, err := loadImageNineSlice("graphics/combo-button-disabled.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -362,7 +361,7 @@ func newComboButtonResources(fonts *Font) (*comboButtonResources, error) {
 		Disabled: disabled,
 	}
 
-	arrowDown, err := loadGraphicImages("res/graphics/arrow-down-idle.png", "res/graphics/arrow-down-disabled.png")
+	arrowDown, err := loadGraphicImages("graphics/arrow-down-idle.png", "graphics/arrow-down-disabled.png")
 	if err != nil {
 		return nil, err
 	}
@@ -386,37 +385,37 @@ func newComboButtonResources(fonts *Font) (*comboButtonResources, error) {
 }
 
 func newListResources(fonts *Font) (*listResources, error) {
-	idle, _, err := ebitenutil.NewImageFromFile("res/graphics/list-idle.png")
+	idle, err := loadImage("graphics/list-idle.png")
 	if err != nil {
 		return nil, err
 	}
 
-	disabled, _, err := ebitenutil.NewImageFromFile("res/graphics/list-disabled.png")
+	disabled, err := loadImage("graphics/list-disabled.png")
 	if err != nil {
 		return nil, err
 	}
 
-	mask, _, err := ebitenutil.NewImageFromFile("res/graphics/list-mask.png")
+	mask, err := loadImage("graphics/list-mask.png")
 	if err != nil {
 		return nil, err
 	}
 
-	trackIdle, _, err := ebitenutil.NewImageFromFile("res/graphics/list-track-idle.png")
+	trackIdle, err := loadImage("graphics/list-track-idle.png")
 	if err != nil {
 		return nil, err
 	}
 
-	trackDisabled, _, err := ebitenutil.NewImageFromFile("res/graphics/list-track-disabled.png")
+	trackDisabled, err := loadImage("graphics/list-track-disabled.png")
 	if err != nil {
 		return nil, err
 	}
 
-	handleIdle, _, err := ebitenutil.NewImageFromFile("res/graphics/slider-handle-idle.png")
+	handleIdle, err := loadImage("graphics/slider-handle-idle.png")
 	if err != nil {
 		return nil, err
 	}
 
-	handleHover, _, err := ebitenutil.NewImageFromFile("res/graphics/slider-handle-hover.png")
+	handleHover, err := loadImage("graphics/slider-handle-hover.png")
 	if err != nil {
 		return nil, err
 	}
@@ -470,27 +469,27 @@ func newListResources(fonts *Font) (*listResources, error) {
 }
 
 func newSliderResources() (*sliderResources, error) {
-	idle, _, err := ebitenutil.NewImageFromFile("res/graphics/slider-track-idle.png")
+	idle, err := loadImage("graphics/slider-track-idle.png")
 	if err != nil {
 		return nil, err
 	}
 
-	disabled, _, err := ebitenutil.NewImageFromFile("res/graphics/slider-track-disabled.png")
+	disabled, err := loadImage("graphics/slider-track-disabled.png")
 	if err != nil {
 		return nil, err
 	}
 
-	handleIdle, _, err := ebitenutil.NewImageFromFile("res/graphics/slider-handle-idle.png")
+	handleIdle, err := loadImage("graphics/slider-handle-idle.png")
 	if err != nil {
 		return nil, err
 	}
 
-	handleHover, _, err := ebitenutil.NewImageFromFile("res/graphics/slider-handle-hover.png")
+	handleHover, err := loadImage("graphics/slider-handle-hover.png")
 	if err != nil {
 		return nil, err
 	}
 
-	handleDisabled, _, err := ebitenutil.NewImageFromFile("res/graphics/slider-handle-disabled.png")
+	handleDisabled, err := loadImage("graphics/slider-handle-disabled.png")
 	if err != nil {
 		return nil, err
 	}
@@ -514,7 +513,7 @@ func newSliderResources() (*sliderResources, error) {
 }
 
 func newPanelResources() (*panelResources, error) {
-	i, err := loadImageNineSlice("res/graphics/panel-idle.png", 10, 10)
+	i, err := loadImageNineSlice("graphics/panel-idle.png", 10, 10)
 	if err != nil {
 		return nil, err
 	}
@@ -531,22 +530,22 @@ func newPanelResources() (*panelResources, error) {
 }
 
 func newTabBookResources(fonts *Font) (*tabBookResources, error) {
-	selectedIdle, err := loadImageNineSlice("res/graphics/button-selected-idle.png", 12, 0)
+	selectedIdle, err := loadImageNineSlice("graphics/button-selected-idle.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	selectedHover, err := loadImageNineSlice("res/graphics/button-selected-hover.png", 12, 0)
+	selectedHover, err := loadImageNineSlice("graphics/button-selected-hover.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	selectedPressed, err := loadImageNineSlice("res/graphics/button-selected-pressed.png", 12, 0)
+	selectedPressed, err := loadImageNineSlice("graphics/button-selected-pressed.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	selectedDisabled, err := loadImageNineSlice("res/graphics/button-selected-disabled.png", 12, 0)
+	selectedDisabled, err := loadImageNineSlice("graphics/button-selected-disabled.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -558,22 +557,22 @@ func newTabBookResources(fonts *Font) (*tabBookResources, error) {
 		Disabled: selectedDisabled,
 	}
 
-	idle, err := loadImageNineSlice("res/graphics/button-idle.png", 12, 0)
+	idle, err := loadImageNineSlice("graphics/button-idle.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	hover, err := loadImageNineSlice("res/graphics/button-hover.png", 12, 0)
+	hover, err := loadImageNineSlice("graphics/button-hover.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	pressed, err := loadImageNineSlice("res/graphics/button-pressed.png", 12, 0)
+	pressed, err := loadImageNineSlice("graphics/button-pressed.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	disabled, err := loadImageNineSlice("res/graphics/button-disabled.png", 12, 0)
+	disabled, err := loadImageNineSlice("graphics/button-disabled.png", 12, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -603,7 +602,7 @@ func newTabBookResources(fonts *Font) (*tabBookResources, error) {
 }
 
 func newHeaderResources(fonts *Font) (*headerResources, error) {
-	bg, err := loadImageNineSlice("res/graphics/header.png", 446, 9)
+	bg, err := loadImageNineSlice("graphics/header.png", 446, 9)
 	if err != nil {
 		return nil, err
 	}
@@ -624,12 +623,12 @@ func newHeaderResources(fonts *Font) (*headerResources, error) {
 }
 
 func newTextInputResources(fonts *Font) (*textInputResources, error) {
-	idle, _, err := ebitenutil.NewImageFromFile("res/graphics/text-input-idle.png")
+	idle, err := loadImage("graphics/text-input-idle.png")
 	if err != nil {
 		return nil, err
 	}
 
-	disabled, _, err := ebitenutil.NewImageFromFile("res/graphics/text-input-disabled.png")
+	disabled, err := loadImage("graphics/text-input-disabled.png")
 	if err != nil {
 		return nil, err
 	}
@@ -659,7 +658,7 @@ func newTextInputResources(fonts *Font) (*textInputResources, error) {
 }
 
 func newToolTipResources(fonts *Font) (*toolTipResources, error) {
-	bg, _, err := ebitenutil.NewImageFromFile("res/graphics/tool-tip.png")
+	bg, err := loadImage("graphics/tool-tip.png")
 	if err != nil {
 		return nil, err
 	}
