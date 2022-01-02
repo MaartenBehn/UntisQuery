@@ -1,15 +1,14 @@
 package ui
 
 import (
-	"io/ioutil"
-
+	"github.com/Stroby241/UntisQuerry/res"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 )
 
 const (
-	FontFaceRegular = "res/fonts/NotoSans-Regular.ttf"
-	FontFaceBold    = "res/fonts/NotoSans-Bold.ttf"
+	FontFaceRegular = "fonts/NotoSans-Regular.ttf"
+	FontFaceBold    = "fonts/NotoSans-Bold.ttf"
 )
 
 type Font struct {
@@ -63,7 +62,7 @@ func (f *Font) Close() {
 }
 
 func LoadFont(path string, size float64) (font.Face, error) {
-	fontData, err := ioutil.ReadFile(path)
+	fontData, err := res.LoadByte(path)
 	if err != nil {
 		return nil, err
 	}
