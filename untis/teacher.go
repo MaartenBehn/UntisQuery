@@ -1,14 +1,23 @@
 package untis
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Stroby241/UntisAPI"
-	"github.com/Stroby241/UntisQuerry/event"
-	"github.com/Stroby241/UntisQuerry/state"
+	"github.com/Stroby241/UntisQuery/event"
+	"github.com/Stroby241/UntisQuery/state"
 	"sort"
 )
 
-func addTeacher(firstname string, lastname string) bool {
+func addTeacher(firstname string, lastname string) {
+	event.Go(event.EventLoading, 0.0)
+
+	if firstname == "" || lastname == "" {
+		event.Go(event.EventAddTeacherResult, errors.New("Firstname and Lastname must be set."))
+		return
+	}
+
+	event.Go(event.EventLoading, 0.1)
 	found := false
 	for _, t2 := range state.Teachers {
 		if t2.Firstname == firstname && t2.Lastname == lastname {
@@ -16,12 +25,15 @@ func addTeacher(firstname string, lastname string) bool {
 		}
 	}
 	if found {
-		return true
+		event.Go(event.EventAddTeacherResult, nil)
+		return
 	}
 
+	event.Go(event.EventLoading, 0.5)
 	id, err := user.GetPersonId(firstname, lastname, true)
 	if err != nil {
-		return false
+		event.Go(event.EventAddTeacherResult, err)
+		return
 	}
 
 	t := &state.Teacher{
@@ -30,7 +42,10 @@ func addTeacher(firstname string, lastname string) bool {
 		Id:        id,
 	}
 	state.Teachers = append(state.Teachers, t)
-	return true
+
+	event.Go(event.EventLoading, 1.0)
+	event.Go(event.EventAddTeacherResult, nil)
+	return
 }
 
 type period struct {
@@ -41,15 +56,17 @@ type period struct {
 	rooms     []int
 }
 
-func queryTeacher(teacher *state.Teacher) bool {
+func queryTeacher(teacher *state.Teacher) {
 	if teacher == nil || timetable == nil || rooms == nil || classes == nil {
-		return false
+		event.Go(event.EventQuerryTaecherResult, errors.New("needed field are nil in queryTeacher"))
+		return
 	}
 
-	event.Go(event.EventStartLoading, "Scanning Data")
+	event.Go(event.EventLoading, 0.0)
 	foundPeriods := []UntisAPI.Period{}
 	for i, periods := range timetable {
-		event.Go(event.EventUpdateLoading, float64(i)/float64(len(timetable))*100.0)
+		event.Go(event.EventLoading, float64(i)/float64(len(timetable)))
+
 		for _, period := range periods {
 			for _, testTeacher := range period.Teacher {
 				if testTeacher == teacher.Id {
@@ -60,7 +77,8 @@ func queryTeacher(teacher *state.Teacher) bool {
 	}
 
 	periods := []*period{}
-	for _, foundPeriod := range foundPeriods {
+	for i, foundPeriod := range foundPeriods {
+		event.Go(event.EventLoading, float64(i)/float64(len(foundPeriods)))
 
 		found := false
 		for _, p := range periods {
@@ -89,7 +107,9 @@ func queryTeacher(teacher *state.Teacher) bool {
 	})
 
 	result := fmt.Sprintf("%s %s found in %d Periods\n", teacher.Firstname, teacher.Lastname, len(foundPeriods))
-	for _, period := range periods {
+	for i, period := range periods {
+		event.Go(event.EventLoading, float64(i)/float64(len(periods)))
+
 		fromTime := UntisAPI.ToGoTime(period.startTime)
 		tillTime := UntisAPI.ToGoTime(period.endTime)
 
@@ -109,8 +129,8 @@ func queryTeacher(teacher *state.Teacher) bool {
 
 		result += fmt.Sprintf("\n")
 	}
-	event.Go(event.EventUpdateQuerryText, result)
 
-	event.Go(event.EventSetPage, state.PageQuerry)
-	return true
+	event.Go(event.EventLoading, 1.0)
+	event.Go(event.EventQuerryTaecherResult, result)
+	return
 }

@@ -1,9 +1,10 @@
 package untis
 
 import (
+	"errors"
 	"github.com/Stroby241/UntisAPI"
-	"github.com/Stroby241/UntisQuerry/event"
-	"github.com/Stroby241/UntisQuerry/state"
+	"github.com/Stroby241/UntisQuery/event"
+	"github.com/Stroby241/UntisQuery/state"
 	"time"
 )
 
@@ -21,11 +22,7 @@ func Init() {
 
 	event.On(event.EventAddTeacher, func(data interface{}) {
 		strings := data.([2]string)
-		success := addTeacher(strings[0], strings[1])
-		if success {
-			event.Go(event.EventUpdateQuerryPanel, nil)
-			event.Go(event.EventSetPage, state.PageQuerry)
-		}
+		addTeacher(strings[0], strings[1])
 	})
 
 	event.On(event.EventLoadTimeTable, func(data interface{}) {
@@ -42,7 +39,7 @@ func login(username string, password string, school string, server string) {
 	err := user.Login()
 	if err != nil {
 		user = nil
-		event.Go(event.EventLoginResult, false)
+		event.Go(event.EventLoginResult, err)
 		return
 	}
 
@@ -53,27 +50,29 @@ var rooms map[int]UntisAPI.Room
 var classes map[int]UntisAPI.Class
 
 func initCalls() {
+	event.Go(event.EventLoading, 0.0)
 	if user == nil {
-		event.Go(event.EventLoginResult, false)
+		event.Go(event.EventLoginResult, errors.New("No User"))
 		return
 	}
 
-	event.Go(event.EventStartLoading, "Login")
+	event.Go(event.EventLoading, 0.1)
 	var err error
 	rooms, err = user.GetRooms()
 	if err != nil {
-		event.Go(event.EventLoginResult, false)
+		event.Go(event.EventLoginResult, err)
 		return
 	}
 
-	event.Go(event.EventUpdateLoading, 50.0)
+	event.Go(event.EventLoading, 0.5)
 	classes, err = user.GetClasses()
 	if err != nil {
-		event.Go(event.EventLoginResult, false)
+		event.Go(event.EventLoginResult, err)
 		return
 	}
 
-	event.Go(event.EventLoginResult, true)
+	event.Go(event.EventLoading, 1.0)
+	event.Go(event.EventLoginResult, nil)
 }
 
 func logout() {
@@ -82,32 +81,31 @@ func logout() {
 	}
 	user.Logout()
 	user = nil
-
-	event.Go(event.EventSetPage, state.PageStart)
 }
 
 var timetable []map[int]UntisAPI.Period
-var date int
+var oldDate int
 
-func loadTimetable(dateTime time.Time) bool {
-	newDate := UntisAPI.ToUntisDate(dateTime)
+func loadTimetable(dateTime time.Time) {
+	untisDate := UntisAPI.ToUntisDate(dateTime)
 
-	if date == newDate {
-		return true
+	if oldDate == untisDate {
+		event.Go(event.EventLoadTimeTableResult, nil)
+		return
 	}
 
-	date = newDate
+	oldDate = untisDate
 
 	timetable = []map[int]UntisAPI.Period{}
 	counter := 0
 
-	event.Go(event.EventStartLoading, "Timetable")
+	event.Go(event.EventLoading, 0.0)
 	for _, room := range rooms {
-		event.Go(event.EventUpdateLoading, float64(counter)/float64(len(rooms))*100.0)
-
-		periods, err := user.GetTimeTable(room.Id, 4, date, date)
+		event.Go(event.EventLoading, float64(counter)/float64(len(rooms)))
+		periods, err := user.GetTimeTable(room.Id, 4, oldDate, oldDate)
 		if err != nil {
-			return false
+			event.Go(event.EventLoadTimeTableResult, err)
+			return
 		}
 
 		if periods != nil {
@@ -116,7 +114,7 @@ func loadTimetable(dateTime time.Time) bool {
 
 		counter++
 	}
-	event.Go(event.EventSetPage, state.PageQuerry)
+	event.Go(event.EventLoading, 1.0)
 
-	return true
+	event.Go(event.EventLoadTimeTableResult, nil)
 }

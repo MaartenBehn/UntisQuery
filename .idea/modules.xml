@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../UntisAPI/.idea/UntisAPI.iml" filepath="$PROJECT_DIR$/../UntisAPI/.idea/UntisAPI.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/UntisQuerry.iml" filepath="$PROJECT_DIR$/.idea/UntisQuerry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../UntisQuery/.idea/UntisQuery.iml" filepath="$PROJECT_DIR$/../UntisQuery/.idea/UntisQuery.iml" />
     </modules>
   </component>
 </project>

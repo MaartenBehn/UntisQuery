@@ -1,27 +1,27 @@
 package event
 
 const (
-	EventUpdate EventId = 0
-	EventDraw   EventId = 1
+	EventSetPanel EventId = 0
 
-	EventSetPage EventId = 2
+	EventLogin       EventId = 1
+	EventLoginResult EventId = 2
 
-	EventLogin       EventId = 3
-	EventLoginResult EventId = 4
-	EventLogout      EventId = 5
+	EventLogout EventId = 3
 
-	EventAddTeacher        EventId = 6
-	EventUpdateQuerryPanel EventId = 7
+	EventAddTeacher       EventId = 4
+	EventAddTeacherResult EventId = 5
 
-	EventLoadTimeTable EventId = 8
+	EventLoadTimeTable       EventId = 6
+	EventLoadTimeTableResult EventId = 7
 
-	EventQuerryTaecher    EventId = 9
-	EventUpdateQuerryText EventId = 10
+	EventQuerryTaecher       EventId = 8
+	EventQuerryTaecherResult EventId = 9
 
-	EventStartLoading  EventId = 11
-	EventUpdateLoading EventId = 12
+	EventUpdateTeacherList EventId = 10
 
-	eventMax = 13
+	EventLoading EventId = 11
+
+	eventMax = 12
 )
 
 type EventId int
@@ -33,12 +33,6 @@ type event struct {
 }
 
 var events [eventMax]event
-
-func Init() {
-	for _, e := range events {
-		e.receiver = []func(interface{}){}
-	}
-}
 
 func Go(id EventId, data interface{}) {
 	for _, r := range events[id].receiver {
