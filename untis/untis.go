@@ -48,6 +48,7 @@ func login(username string, password string, school string, server string) {
 
 var rooms map[int]UntisAPI.Room
 var classes map[int]UntisAPI.Class
+var subjects map[int]UntisAPI.Subject
 
 func initCalls() {
 	event.Go(event.EventLoading, 0.0)
@@ -71,6 +72,13 @@ func initCalls() {
 		return
 	}
 
+	event.Go(event.EventLoading, 0.8)
+	subjects, err = user.GetSubjects()
+	if err != nil {
+		event.Go(event.EventLoginResult, err)
+		return
+	}
+
 	event.Go(event.EventLoading, 1.0)
 	event.Go(event.EventLoginResult, nil)
 }
@@ -84,37 +92,47 @@ func logout() {
 }
 
 var timetable []map[int]UntisAPI.Period
-var oldDate int
+var currentTimetable []UntisAPI.Period
+var fromDate int
+var toDate int
+
+const timetablePredicting = 7
 
 func loadTimetable(dateTime time.Time) {
 	untisDate := UntisAPI.ToUntisDate(dateTime)
 
-	if oldDate == untisDate {
-		event.Go(event.EventLoadTimeTableResult, nil)
-		return
+	if !(untisDate >= fromDate && untisDate <= toDate) {
+		fromDate = UntisAPI.ToUntisDate(dateTime.AddDate(0, 0, -timetablePredicting))
+		toDate = UntisAPI.ToUntisDate(dateTime.AddDate(0, 0, timetablePredicting))
+
+		timetable = []map[int]UntisAPI.Period{}
+		counter := 0
+		event.Go(event.EventLoading, 0.0)
+		for _, room := range rooms {
+			event.Go(event.EventLoading, float64(counter)/float64(len(rooms)))
+			periods, err := user.GetTimeTable(room.Id, 4, fromDate, toDate)
+			if err != nil {
+				event.Go(event.EventLoadTimeTableResult, err)
+				return
+			}
+
+			if periods != nil {
+				timetable = append(timetable, periods)
+			}
+
+			counter++
+		}
+		event.Go(event.EventLoading, 1.0)
 	}
 
-	oldDate = untisDate
-
-	timetable = []map[int]UntisAPI.Period{}
-	counter := 0
-
-	event.Go(event.EventLoading, 0.0)
-	for _, room := range rooms {
-		event.Go(event.EventLoading, float64(counter)/float64(len(rooms)))
-		periods, err := user.GetTimeTable(room.Id, 4, oldDate, oldDate)
-		if err != nil {
-			event.Go(event.EventLoadTimeTableResult, err)
-			return
+	currentTimetable = []UntisAPI.Period{}
+	for _, room := range timetable {
+		for _, period := range room {
+			if period.Date == untisDate {
+				currentTimetable = append(currentTimetable, period)
+			}
 		}
-
-		if periods != nil {
-			timetable = append(timetable, periods)
-		}
-
-		counter++
 	}
-	event.Go(event.EventLoading, 1.0)
 
 	event.Go(event.EventLoadTimeTableResult, nil)
 }

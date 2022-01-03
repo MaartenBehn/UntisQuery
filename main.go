@@ -14,6 +14,8 @@ func main() {
 	window := a.NewWindow("Untis Querry")
 	window.SetContent(widget.NewLabel("Hello World!"))
 
+	window.Canvas().Size()
+
 	untis.Init()
 	panel.Init(&window)
 
@@ -36,6 +38,8 @@ func updateLoop() {
 	for running {
 		startDuration = time.Since(startTime)
 		// All update Calls
+
+		event.Go(event.EventUpdate, nil)
 
 		diff := time.Since(startTime) - startDuration
 		if diff > 0 {

@@ -21,7 +21,9 @@ const (
 
 	EventLoading EventId = 11
 
-	eventMax = 12
+	EventUpdate EventId = 12
+
+	eventMax EventId = 13
 )
 
 type EventId int

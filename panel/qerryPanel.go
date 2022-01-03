@@ -20,21 +20,57 @@ type queryPanel struct {
 	day             *Entry
 	month           *Entry
 	year            *Entry
-	resultLabel     *widget.Label
+	peroidList      *widget.List
 	errorLabel      *widget.Label
+
+	needQuery bool
 }
 
-func newQueryPanel() *queryPanel {
+func newQueryPanel(window *fyne.Window) *queryPanel {
 	p := &queryPanel{
 		panel: newPanel(),
 		teacherSelecter: widget.NewSelect([]string{}, func(s string) {
 
 		}),
-		day:         newEntry(),
-		month:       newEntry(),
-		year:        newEntry(),
-		resultLabel: widget.NewLabel(""),
-		errorLabel:  widget.NewLabel(""),
+		day:   newEntry(),
+		month: newEntry(),
+		year:  newEntry(),
+		peroidList: widget.NewList(func() int {
+			return len(state.Periods)
+		}, func() fyne.CanvasObject {
+			return widget.NewLabel("")
+		}, func(id widget.ListItemID, o fyne.CanvasObject) {
+			p := state.Periods[id]
+
+			text := fmt.Sprintf("%02d:%02d > %02d:%02d |",
+				p.StartTime.Hour(),
+				p.StartTime.Minute(),
+				p.EndTime.Hour(),
+				p.EndTime.Minute(),
+			)
+			for _, s := range p.Rooms {
+				text += " " + s
+			}
+			text += " |"
+			for _, s := range p.Classes {
+				text += " " + s
+			}
+			text += " |"
+			for _, s := range p.Subjects {
+				text += " " + s
+			}
+			o.(*widget.Label).SetText(text)
+
+			// TODO This produces ugly result
+			size := (*window).Canvas().Size()
+			for o.(*widget.Label).MinSize().Width > size.Width {
+				i := len(text) / 2
+				text = text[:i] + "\n" + text[i:]
+				o.(*widget.Label).SetText(text)
+			}
+		}),
+
+		errorLabel: widget.NewLabel(""),
 	}
 
 	now := time.Now()
@@ -90,51 +126,55 @@ func newQueryPanel() *queryPanel {
 	p.month.OnChanged = p.onDateInputChange
 	p.year.OnChanged = p.onDateInputChange
 
-	p.content = container.NewVBox(
-		p.loadingBar,
-		container.NewBorder(nil, nil, nil,
-			widget.NewButton("Logout", func() {
-				event.Go(event.EventLogout, nil)
-				event.Go(event.EventSetPanel, PanelStart)
-			}),
-			widget.NewLabel("Query:"),
+	p.teacherSelecter.OnChanged = func(s string) {
+		p.needQuery = true
+	}
+
+	p.content = container.NewBorder(
+		container.NewVBox(
+			p.loadingBar,
+			container.NewBorder(nil, nil, nil,
+				widget.NewButton("Logout", func() {
+					event.Go(event.EventLogout, nil)
+					event.Go(event.EventSetPanel, PanelStart)
+				}),
+				widget.NewLabel("Query:"),
+			),
+			container.NewBorder(nil, nil, nil,
+				widget.NewButton("Add Teacher", func() {
+					event.Go(event.EventSetPanel, PanelAddTeacher)
+				}),
+				p.teacherSelecter,
+			),
+			container.NewHBox(
+				widget.NewLabel("Date: "),
+				p.day,
+				p.month,
+				p.year,
+				widget.NewButton("+", func() {
+					date, err := p.getDate()
+					if err != nil {
+						p.errorLabel.SetText(err.Error())
+						return
+					}
+					p.day.SetText(fmt.Sprintf("%d", date.Day()+1))
+					p.getDate()
+				}),
+				widget.NewButton("-", func() {
+					date, err := p.getDate()
+					if err != nil {
+						p.errorLabel.SetText(err.Error())
+						return
+					}
+					p.day.SetText(fmt.Sprintf("%d", date.Day()-1))
+					p.getDate()
+				}),
+			),
 		),
-		container.NewBorder(nil, nil, nil,
-			widget.NewButton("Add Teacher", func() {
-				event.Go(event.EventSetPanel, PanelAddTeacher)
-			}),
-			p.teacherSelecter,
-		),
-		container.NewHBox(
-			widget.NewLabel("Date: "),
-			p.day,
-			p.month,
-			p.year,
-			widget.NewButton("+", func() {
-				date, err := p.getDate()
-				if err != nil {
-					p.errorLabel.SetText(err.Error())
-					return
-				}
-				p.day.SetText(fmt.Sprintf("%d", date.Day()+1))
-				p.getDate()
-			}),
-			widget.NewButton("-", func() {
-				date, err := p.getDate()
-				if err != nil {
-					p.errorLabel.SetText(err.Error())
-					return
-				}
-				p.day.SetText(fmt.Sprintf("%d", date.Day()-1))
-				p.getDate()
-			}),
-		),
-		widget.NewButton("Query", func() {
-			p.errorLabel.SetText("")
-			p.query()
-		}),
-		p.resultLabel,
 		p.errorLabel,
+		nil,
+		nil,
+		p.peroidList,
 	)
 
 	p.onShow = func() {
@@ -148,6 +188,10 @@ func newQueryPanel() *queryPanel {
 			names = append(names, teacher.Firstname+" "+teacher.Lastname)
 		}
 		p.teacherSelecter.Options = names
+
+		if len(names) == 1 {
+			p.teacherSelecter.SetSelected(names[0])
+		}
 	})
 
 	event.On(event.EventLoadTimeTableResult, func(data interface{}) {
@@ -161,13 +205,17 @@ func newQueryPanel() *queryPanel {
 
 	event.On(event.EventQuerryTaecherResult, func(data interface{}) {
 		event.Go(event.EventLoading, 0.0)
-		switch data.(type) {
-		case error:
+		if data != nil {
 			p.errorLabel.SetText(data.(error).Error())
-			break
-		case string:
-			p.resultLabel.SetText(data.(string))
-			break
+		} else {
+			p.peroidList.Refresh()
+		}
+	})
+
+	event.On(event.EventUpdate, func(data interface{}) {
+		if p.needQuery {
+			p.needQuery = false
+			p.query()
 		}
 	})
 
@@ -180,6 +228,7 @@ func (p *queryPanel) onDateInputChange(s string) {
 		p.errorLabel.SetText(err.Error())
 	} else {
 		p.errorLabel.SetText("")
+		p.needQuery = true
 	}
 }
 
@@ -229,6 +278,7 @@ func (p *queryPanel) query() {
 	}
 
 	event.Go(event.EventLoadTimeTable, date)
+	p.content.Refresh()
 }
 
 func (p *queryPanel) loadTeacher() {

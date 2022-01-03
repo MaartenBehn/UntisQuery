@@ -36,7 +36,7 @@ func newPanel() *panel {
 func Init(window *fyne.Window) {
 	panels = make([]*panel, panelMax)
 	panels[PanelStart] = newStartPanel().panel
-	panels[PanelQuery] = newQueryPanel().panel
+	panels[PanelQuery] = newQueryPanel(window).panel
 	panels[PanelAddTeacher] = newAddTeacherPanel().panel
 
 	event.On(event.EventSetPanel, func(data interface{}) {
