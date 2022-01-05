@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/Stroby241/UntisQuery/event"
 	"github.com/Stroby241/UntisQuery/panel"
@@ -14,14 +16,24 @@ func main() {
 	window := a.NewWindow("Untis Querry")
 	window.SetContent(widget.NewLabel("Hello World!"))
 
-	window.Canvas().Size()
+	event.On(event.EventHandleError, func(data interface{}) {
+		if data != nil {
+			dialog.ShowError(data.(error), window)
+		}
+
+		if r := recover(); r != nil {
+			dialog.ShowError(r.(error), window)
+		}
+	})
+
+	defer event.Go(event.EventHandleError, nil)
 
 	untis.Init()
 	panel.Init(&window)
 
 	event.Go(event.EventSetPanel, panel.PanelStart)
 
-	go updateLoop()
+	go updateLoop(&window)
 	window.ShowAndRun()
 }
 
@@ -30,7 +42,9 @@ var fps float64
 
 const maxFPS = 30
 
-func updateLoop() {
+func updateLoop(window *fyne.Window) {
+	defer event.Go(event.EventHandleError, nil)
+
 	startTime := time.Now()
 	var startDuration time.Duration
 	wait := time.Duration(1000000000 / int(maxFPS))

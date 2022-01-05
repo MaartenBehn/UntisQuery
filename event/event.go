@@ -23,7 +23,9 @@ const (
 
 	EventUpdate EventId = 12
 
-	eventMax EventId = 13
+	EventHandleError EventId = 13
+
+	eventMax EventId = 14
 )
 
 type EventId int

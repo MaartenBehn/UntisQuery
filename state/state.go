@@ -2,6 +2,15 @@ package state
 
 import "time"
 
+var Logins []*Login
+
+type Login struct {
+	Username string
+	Password string
+	School   string
+	Server   string
+}
+
 var Teachers []*Teacher
 
 type Teacher struct {

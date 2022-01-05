@@ -180,6 +180,9 @@ func newQueryPanel(window *fyne.Window) *queryPanel {
 	p.onShow = func() {
 		p.errorLabel.SetText("")
 		event.Go(event.EventLoading, 0.0)
+
+		state.LoadTeacher()
+		event.Go(event.EventUpdateTeacherList, nil)
 	}
 
 	event.On(event.EventUpdateTeacherList, func(data interface{}) {

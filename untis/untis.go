@@ -43,7 +43,7 @@ func login(username string, password string, school string, server string) {
 		return
 	}
 
-	go initCalls()
+	initCalls()
 }
 
 var rooms map[int]UntisAPI.Room

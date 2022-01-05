@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/Stroby241/UntisQuery/event"
+	"github.com/Stroby241/UntisQuery/state"
 )
 
 type addTeacherPanel struct {
@@ -53,6 +54,7 @@ func newAddTeacherPanel() *addTeacherPanel {
 		if data != nil {
 			p.errorLabel.SetText(data.(error).Error())
 		} else {
+			state.SaveTeacher()
 			event.Go(event.EventUpdateTeacherList, nil)
 			event.Go(event.EventSetPanel, PanelQuery)
 		}
